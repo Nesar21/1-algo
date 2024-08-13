@@ -1,0 +1,177 @@
+//tester
+#include <stdio.h>
+#include <stdlib.h>
+
+#define MAX 100
+
+// Global variables
+int graph[MAX][MAX];
+int visited[MAX];
+int isCyclic = 0;
+int dfsCount = 0;
+int count = 0;
+int dcount = 0;
+
+// Depth-First Search (DFS) function
+void dfs1(int n, int start, int parent) {
+    visited[start] = 1;
+    count++;
+    for (int i = 0; i < n; i++) {
+        if (i != parent && graph[start][i] && visited[i]) {
+            isCyclic = 1;
+        }
+
+        dcount++;
+        if (graph[start][i] && !visited[i]) {
+            dfs1(n, i, start);
+        }
+    }
+}
+
+// Function to read graph data from user
+void readGraph(int *n) {
+    printf("Enter the number of vertices: ");
+    scanf("%d", n);
+
+    // Initialize the graph matrix to zero
+    for (int i = 0; i < *n; i++) {
+        for (int j = 0; j < *n; j++) {
+            graph[i][j] = 0;
+        }
+    }
+
+    printf("Enter the adjacency matrix (0 or 1 for each pair of vertices):\n");
+    for (int i = 0; i < *n; i++) {
+        for (int j = 0; j < *n; j++) {
+            printf("Edge between %d and %d: ", i, j);
+            scanf("%d", &graph[i][j]);
+        }
+    }
+}
+
+// Test case function for adjacency matrix representation
+void testGraphMatrix() {
+    int v;
+
+    // Read graph data from user
+    readGraph(&v);
+
+    // Initialize visited array
+    for (int i = 0; i < v; i++) {
+        visited[i] = 0;
+    }
+
+    printf("Running DFS:\n");
+    isCyclic = 0;
+    dfsCount = 0;
+    count = 0;
+    dcount = 0;
+    dfs1(v, 0, -1);
+    dfsCount++;
+    int start = 1;
+    while (count != v) {
+        if (visited[start] != 1) {
+            dfs1(v, start, -1);
+            dfsCount++;
+        }
+        start++;
+    }
+
+    if (isCyclic) {
+        printf("THE GRAPH HAS A CYCLE\n");
+    } else {
+        printf("THE GRAPH DOES NOT HAVE A CYCLE\n");
+    }
+    printf("DFS Count: %d\n", dcount);
+    printf("\n");
+}
+
+int main() {
+    testGraphMatrix();
+    return 0;
+}
+
+
+//plotter
+#include <stdio.h>
+#include <stdlib.h>
+
+int graph[100][100], visited[100], isCyclic = 0;
+int dfsCount = 0, count = 0;
+int dcount = 0;
+
+void dfs1(int n, int start, int parent) {
+    visited[start] = 1;
+    count++;
+    for (int i = 0; i < n; i++) {
+        if (i != parent && graph[start][i] && visited[i]) {
+            isCyclic = 1;
+        }
+        dcount++;
+        if (graph[start][i] && visited[i] == 0) {
+            dfs1(n, i, start);
+        }
+    }
+}
+
+void plotter(int k) {
+    FILE *f1 = fopen("DFSBEST.txt", "a");
+    FILE *f2 = fopen("DFSWORST.txt", "a");
+
+    for (int i = 1; i <= 10; i++) {
+        int v = i;
+        if (k == 0) {
+            for (int i = 0; i < v; i++) {
+                for (int j = 0; j < v; j++) {
+                    if (i != j) {
+                        graph[i][j] = 1;
+                    } else {
+                        graph[i][j] = 0;
+                    }
+                }
+            }
+        } else if (k == 1) {
+            for (int i = 0; i < v; i++) {
+                for (int j = 0; j < v; j++) {
+                    graph[i][j] = 0;
+                }
+            }
+            for (int i = 0; i < v - 1; i++) {
+                graph[i][i + 1] = 1;
+            }
+        }
+
+        isCyclic = 0;
+        dfsCount = 0;
+        count = 0;
+        dcount = 0;
+
+        dfs1(v, 0, -1);
+        dfsCount++;
+        int start = 1;
+        while (count != v) {
+            if (visited[start] != 1) {
+                dfs1(v, start, -1);
+                dfsCount++;
+            }
+            start++;
+        }
+
+        if (k == 0) {
+            fprintf(f2, "%d\t%d\n", v, dcount);
+        } else {
+            fprintf(f1, "%d\t%d\n", v, dcount);
+        }
+    }
+
+    fclose(f1);
+    fclose(f2);
+}
+
+int main() {
+    for (int i = 0; i < 2; i++) {
+        plotter(i);
+    }
+    printf("DATA ENTERED INTO THE FILE\n");
+    return 0;
+}
