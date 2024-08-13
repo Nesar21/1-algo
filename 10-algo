@@ -1,0 +1,244 @@
+//tester
+#include<stdio.h>
+#include<stdlib.h>
+ int count=0;
+typedef struct queue
+{
+int f,r,*arr,cnt;
+}QUE;
+int s[10];
+void indegree(int *a[],int v,int inq[],QUE *temp,int flag[])
+{
+ for(int i=0;i<v;i++)
+ {
+ for(int j=0;j<v;j++)
+ {
+ if(a[j][i]==1)
+ inq[i]=inq[i]+1;
+ }
+ if(inq[i]==0)
+ {
+ temp->r=(temp->r+1)%v;
+ temp->arr[temp->r]=i;
+ temp->cnt=temp->cnt+1;
+ flag[i]=1;
+ }
+ }
+}
+void sourceremove(int *a[],int v,QUE *temp,int inq[],int flag[])
+{
+int cnt=0;
+while(temp->cnt!=0)
+{
+ int source=temp->arr[temp->f];
+ temp->f=(temp->f+1)%v;
+ s[cnt]=source;
+ temp->cnt=temp->cnt-1;
+ cnt++;
+ for(int i=0;i<v;i++)
+ {
+ if(a[source][i]==1)
+ inq[i]=inq[i]-1;
+ if(inq[i]==0&&flag[i]==0)
+ {
+ temp->r=(temp->r+1)%v;
+ temp->arr[temp->r]=i;
+ temp->cnt=temp->cnt+1;
+ flag[i]=1;
+ }
+ }
+}
+if(cnt!=v)
+{
+ printf("Cycles exist no topological sorting possible\n");
+}
+else
+{
+ printf("The topological sorting is\n");
+ for(int i=0;i<v;i++)
+ printf("%c\t",s[i]+65);
+
+}
+}
+void main()
+{
+ int v;
+ printf("Enter number of vertices\n"); scanf("%d",&v);
+ int *arr[v];
+ for(int i=0;i<v;i++)
+ arr[i]=(int *)malloc(sizeof(int)*v);
+printf("Enter the adjacency matrix\n");
+ for(int i=0;i<v;i++)
+{
+ //printf("Enter 1 for the vertices adjacent to vertex %c\n",i+65);
+ for(int j=0;j<v;j++)
+ {
+ //printf("\nVertex %c : ",j+65);
+ scanf("%d",&arr[i][j]);
+ }
+}
+printf("\n");
+ printf("Adjacency matrix\n");
+ for(int i=0;i<v;i++)
+ {
+ for(int j=0;j<v;j++)
+ {
+ printf("%d\t",arr[i][j]);
+ }
+ printf("\n");
+ }
+printf("\n");
+ QUE q;
+ q.f=0;
+ q.r=-1;
+ q.cnt=0;
+ q.arr=(int*)malloc(sizeof(int)*v);
+  int *inq=(int *)malloc(sizeof(int)*v);
+ for(int i=0;i<v;i++)
+ inq[i]=0;
+int *flag=(int *)malloc(sizeof(int)*v);
+for(int i=0;i<v;i++)
+flag[i]=0;
+ indegree(arr,v,inq,&q,flag);
+ sourceremove(arr,v,&q,inq,flag);
+printf("\n");
+}
+
+//plotter
+#include <stdio.h>
+#include <stdlib.h>
+
+int count1, count2, count3;
+
+typedef struct queue {
+    int f, r, *arr, cnt;
+} QUE;
+
+int s[100];
+
+void indegree(int **matrix, int vertices, int inq[], QUE *temp, int flag[]) {
+    for (int i = 0; i < vertices; i++) {
+        for (int j = 0; j < vertices; j++) {
+            if (matrix[j][i] == 1) {
+                inq[i]++;
+                count1++;
+            }
+            count1++;
+        }
+    }
+    for (int i = 0; i < vertices; i++) {
+        if (inq[i] == 0) {
+            temp->r = (temp->r + 1) % vertices;
+            temp->arr[temp->r] = i;
+            temp->cnt++;
+            flag[i] = 1;
+            count2++;
+        }
+    }
+}
+
+void sourceremove(int **matrix, int vertices, QUE *temp, int inq[], int flag[]) {
+    int cnt = 0;
+    while (temp->cnt != 0) {
+        int source = temp->arr[temp->f];
+        temp->f = (temp->f + 1) % vertices;
+        s[cnt] = source;
+        temp->cnt--;
+        cnt++;
+        for (int i = 0; i < vertices; i++) {
+            if (matrix[source][i] == 1) {
+                inq[i]--;
+                count3++;
+                if (inq[i] == 0 && flag[i] == 0) {
+                    temp->r = (temp->r + 1) % vertices;
+                    temp->arr[temp->r] = i;
+                    temp->cnt++;
+                    flag[i] = 1;
+                }
+            }
+            count3++;
+        }
+    }
+}
+
+int max(int num1, int num2, int num3) {
+    if (num1 > num2 && num1 > num3)
+        return num1;
+    if (num2 > num1 && num2 > num3)
+        return num2;
+    return num3;
+}
+
+void plotter(int k) {
+    FILE *fdata, *f1, *f2;
+    fdata = fopen("GRAPHDATA.txt", "a");
+    f1 = fopen("TSRCWROST.txt", "a");
+    f2 = fopen("TSRCBEST.txt", "a");
+
+    for (int i = 1; i <= 100; i++) {
+        int n = i;
+
+        int **matrix = (int **)malloc(n * sizeof(int *));
+        for (int j = 0; j < n; j++) {
+            matrix[j] = (int *)malloc(n * sizeof(int));
+        }
+
+        // Initialize the matrix
+        for (int j = 0; j < n; j++) {
+            for (int k = 0; k < n; k++) {
+                if (k == n - 1 - j) {
+                    matrix[j][k] = 0;
+                } else {
+                    matrix[j][k] = (k > j) ? 1 : 0;
+                }
+            }
+        }
+
+        count1 = 0;
+        count2 = 0;
+        count3 = 0;
+
+        QUE q;
+        q.f = 0;
+        q.r = -1;
+        q.cnt = 0;
+        q.arr = (int *)malloc(sizeof(int) * n);
+        int *inq = (int *)malloc(sizeof(int) * n);
+        for (int j = 0; j < n; j++)
+            inq[j] = 0;
+        int *flag = (int *)malloc(sizeof(int) * n);
+        for (int j = 0; j < n; j++)
+            flag[j] = 0;
+
+        indegree(matrix, n, inq, &q, flag);
+        sourceremove(matrix, n, &q, inq, flag);
+
+        int max1 = max(count1, count2, count3);
+        fprintf(fdata, "%d\t%d\t%d\t%d\n", n, count1, count2, count3);
+        if (k == 0)
+            fprintf(f1, "%d\t%d\n", n, max1);
+        else
+            fprintf(f2, "%d\t%d\n", n, max1);
+
+        // Free allocated memory
+        for (int j = 0; j < n; j++) {
+            free(matrix[j]);
+        }
+        free(matrix);
+        free(q.arr);
+        free(inq);
+        free(flag);
+    }
+
+    fclose(fdata);
+    fclose(f1);
+    fclose(f2);
+}
+
+int main() {
+    for (int i = 0; i < 2; i++)
+        plotter(i);
+
+    printf("Data has been entered.\n");
+    return 0;
+}
