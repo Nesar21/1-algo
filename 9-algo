@@ -1,0 +1,141 @@
+//tester
+#include<stdio.h>
+#include<stdlib.h>
+#define MAX 100
+int graph[MAX][MAX], visited[MAX],path[MAX], count=0;
+int stack[MAX], top=-1;
+int c=0;
+void dfs(int n, int start) {
+ visited[start] = 1;
+ path[start] =1;
+ for(int i=0; i<n; i++)
+ {
+ if(graph[start][i] && visited[i]==1&& path[i]==1)
+ c=1 ;
+ if(graph[start][i] && visited[i]==0)
+ dfs(n, i);
+ }
+ path[start]=0;
+ stack[++top] = start;
+}
+void main()
+{
+ int n;
+ printf("\nEnter the number of vertices:\n");
+ scanf("%d", &n);
+ printf("\nEnter the adjacency matrix:\n");
+ for(int i=0; i<n; i++){
+ for(int j=0; j<n; j++)
+ scanf("%d", &graph[i][j]);
+ visited[i] = 0;
+ }
+
+ printf("\nTopological Order:\n");
+ for(int i=0; i<n; i++) {
+ if(visited[i] == 0)
+ dfs(n, i);
+ }
+ if(c==1)
+ {
+ printf("IT HAS A LOOP SO NO TOPOLOGICAL ORDER\n");
+ return ;
+ }
+ for(int i=0; i<n; i++) {
+ printf(" --> %c", stack[i]+65);
+ }
+}
+
+//plotter
+#include <stdio.h>
+#include <stdlib.h>
+
+#define MAX 100
+
+int graph[MAX][MAX], visited[MAX], path[MAX], count = 0;
+int stack[MAX], top = -1;
+int cyclic = 0; // to track if the graph is cyclic
+
+void dfs(int n, int start) {
+    visited[start] = 1;
+    path[start] = 1; // mark the vertex as part of the current path
+    for (int i = 0; i < n; i++) {
+        count++;
+        if (graph[start][i] && visited[i] == 1 && path[i] == 1) {
+            cyclic = 1; // found a back edge which indicates a cycle
+        }
+        if (graph[start][i] && visited[i] == 0) {
+            dfs(n, i);
+        }
+    }
+    path[start] = 0; // backtrack
+    stack[++top] = start; // push to stack for topological sorting
+}
+
+void ploter(int k) {
+    FILE *f1 = fopen("DFS_BEST.txt", "a");
+    FILE *f2 = fopen("DFS_WORST.txt", "a");
+    int v, start;
+
+    for (int i = 1; i <= 10; i++) {
+        v = i;
+
+        // Initialize graph matrix
+        for (int x = 0; x < v; x++) {
+            for (int y = 0; y < v; y++) {
+                graph[x][y] = 0;
+            }
+        }
+
+        // Create the graph based on the scenario
+        if (k == 0) { // Best case: Complete graph
+            for (int x = 0; x < v; x++) {
+                for (int y = 0; y < v; y++) {
+                    if (x != y) {
+                        graph[x][y] = 1;
+                    }
+                }
+            }
+        }
+
+        if (k == 1) { // Worst case: Path graph
+            for (int x = 0; x < v - 1; x++) {
+                graph[x][x + 1] = 1;
+                graph[x + 1][x] = 1; // Ensure undirected graph
+            }
+        }
+
+        // Reset global variables
+        count = 0;
+        cyclic = 0;
+        top = -1;
+
+        // Perform DFS for all components
+        for (int i = 0; i < v; i++) {
+            visited[i] = 0;
+            path[i] = 0;
+        }
+
+        for (int i = 0; i < v; i++) {
+            if (visited[i] == 0) {
+                dfs(v, i);
+            }
+        }
+
+        if (k == 0) {
+            fprintf(f1, "%d\t%d\t%s\n", v, count, cyclic ? "Cyclic" : "Acyclic");
+        } else {
+            fprintf(f2, "%d\t%d\t%s\n", v, count, cyclic ? "Cyclic" : "Acyclic");
+        }
+    }
+
+    fclose(f1);
+    fclose(f2);
+}
+
+int main() {
+    for (int i = 0; i < 2; i++) {
+        ploter(i);
+    }
+    printf("Data entered into files.\n");
+    return 0;
+}
