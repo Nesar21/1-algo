@@ -62,12 +62,13 @@ int knap(int n,int m)
 {
  for(int i=0;i<n+1;i++)
 {
+count=0;
 for(j=0;j<m+1;j++)
 {
+count++;
 if(i==0||j==0)
 t[i][j]=0;
 else{
- count++;
 if(j<w[i])
 t[i][j]=t[i-1][j];
 else
